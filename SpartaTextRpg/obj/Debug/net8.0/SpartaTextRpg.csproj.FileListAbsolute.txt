@@ -1,0 +1,14 @@
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.AssemblyInfoInputs.cache
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.AssemblyInfo.cs
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.csproj.CoreCompileInputs.cache
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\bin\Debug\net8.0\SpartaTextRpg.exe
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\bin\Debug\net8.0\SpartaTextRpg.deps.json
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\bin\Debug\net8.0\SpartaTextRpg.runtimeconfig.json
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\bin\Debug\net8.0\SpartaTextRpg.dll
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\bin\Debug\net8.0\SpartaTextRpg.pdb
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.dll
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\refint\SpartaTextRpg.dll
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.pdb
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\SpartaTextRpg.genruntimeconfig.cache
+C:\Users\wcsugar\Desktop\SpartaC#\SpartaTextRpg\SpartaTextRpg\obj\Debug\net8.0\ref\SpartaTextRpg.dll
