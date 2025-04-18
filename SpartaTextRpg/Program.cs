@@ -27,14 +27,21 @@ namespace SpartaTextRpg
 
     public enum EquipmentType
     {
-        무기=1,
+        무기 = 1,
         방어구
+    }
+
+    public enum DungeonDifficulty
+    {
+        쉬운 = 1,
+        일반,
+        어려운
     }
 
     public struct ItemStat
     {
-        private int attack;
-        public int ATTACK
+        private float attack;
+        public float ATTACK
         {
             get { return attack; }
             set
@@ -47,8 +54,8 @@ namespace SpartaTextRpg
             }
         }
 
-        private int defense;
-        public int DEFENSE
+        private float defense;
+        public float DEFENSE
         {
             get { return defense; }
             set
@@ -86,6 +93,11 @@ namespace SpartaTextRpg
 
         }
 
+        public override int GetHashCode()
+        {
+            return (int)(ATTACK * 100 + DEFENSE);
+        }
+
     }
     internal class Program
     {
@@ -102,9 +114,16 @@ namespace SpartaTextRpg
         private Player player;
         private ItemDB db;
         private Market mk;
+        private Dungeon dungeon;
         public void StartGame()
         {
             Init();
+            while (true)
+            {
+                //playerInput = null;
+                SelectMenu();
+
+            }
 
         }
         private void SelectJob()
@@ -235,7 +254,7 @@ namespace SpartaTextRpg
                 {
                     _addA = "(+ " + player.additionalAttack.ToString() + ")";
                 }
-                else if (player.additionalDefense > 0)
+                if (player.additionalDefense > 0)
                 {
                     _addD = "(+ " + player.additionalDefense.ToString() + ")";
                 }
@@ -346,7 +365,7 @@ namespace SpartaTextRpg
                     {
                         Console.Clear();
                         Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
-                        return;
+                        continue;
                     }
                     if (int.Parse(playerInput) > 0 && int.Parse(playerInput) <= player.inventory.GetItemCount())
                     {
@@ -355,8 +374,16 @@ namespace SpartaTextRpg
                         if (player.inventory.GetItem(selectedItem) is EquipmentItem)
                         {
                             EquipmentItem selectedEquipment = (EquipmentItem)player.inventory.GetItem(selectedItem);
-                            player.EquipItem(selectedEquipment);
-                            
+                            if (selectedEquipment.ISEQUIPED)
+                            {
+                                player.UnEquipItem(selectedEquipment.TYPE);
+                            }
+                            else
+                            {
+                                player.EquipItem(selectedEquipment);
+
+                            }
+
 
                         }
                         else
@@ -394,7 +421,7 @@ namespace SpartaTextRpg
         {
             while (true)
             {
-                
+
                 Console.WriteLine($"상점\r\n필요한 아이템을 얻을 수 있는 상점입니다.\r\n\n[보유 골드]\r\n{player.GOLD} G\r\n\n[아이템 목록]");
                 Console.WriteLine();
                 mk.mkInven.ShowItemsInMarket();
@@ -444,7 +471,7 @@ namespace SpartaTextRpg
         {
             while (true)
             {
-                
+
                 Console.WriteLine($"상점 - 아이템 구매\r\n필요한 아이템을 얻을 수 있는 상점입니다.\r\n\n[보유 골드]\r\n{player.GOLD} G\r\n\n[아이템 목록]");
                 Console.WriteLine();
                 mk.mkInven.ShowItemsInMarket();
@@ -468,18 +495,18 @@ namespace SpartaTextRpg
                     Console.Clear();
                     return;
                 }
-                else if(int.Parse(playerInput)>0 && int.Parse(playerInput)<=mk.mkInven.GetItemCount())
+                else if (int.Parse(playerInput) > 0 && int.Parse(playerInput) <= mk.mkInven.GetItemCount())
                 {
                     int selectedItem = int.Parse(playerInput) - 1;
 
-                    if (player.GOLD >= mk.mkInven.GetItem(selectedItem).PRICE )
+                    if (player.GOLD >= mk.mkInven.GetItem(selectedItem).PRICE)
                     {
                         if (!mk.mkInven.GetItem(selectedItem).HASITEM)
                         {
 
-                        player.GOLD -= mk.mkInven.GetItem(selectedItem).PRICE;
-                        player.inventory.AddItem(mk.mkInven.GetItem(selectedItem).CloneItem());
-                        mk.mkInven.GetItem(selectedItem).HASITEM = true;
+                            player.GOLD -= mk.mkInven.GetItem(selectedItem).PRICE;
+                            player.inventory.AddItem(mk.mkInven.GetItem(selectedItem).CloneItem());
+                            mk.mkInven.GetItem(selectedItem).HASITEM = true;
                             Console.Clear();
                             Console.WriteLine("구매를 완료했습니다.\n");
                         }
@@ -489,7 +516,7 @@ namespace SpartaTextRpg
                             Console.WriteLine("이미 구매한 아이템입니다\n");
                         }
 
-                        
+
                     }
                     else
                     {
@@ -543,8 +570,8 @@ namespace SpartaTextRpg
                     Console.WriteLine($"{player.inventory.GetItem(selectedItem).NAME}을 판매하였습니다!.\n");
                     player.GOLD += (int)(player.inventory.GetItem(selectedItem).PRICE * 0.85);
                     if (selectedEquipment.TYPE == EquipmentType.무기)
-                    {   
-                        if(player.EquipedItem[0] == selectedEquipment)
+                    {
+                        if (player.EquipedItem[0] == selectedEquipment)
                         {
                             player.UnEquipItem(EquipmentType.무기);
                         }
@@ -571,9 +598,10 @@ namespace SpartaTextRpg
         }
 
         public void TakeRest()
-        {   while (true)
+        {
+            while (true)
             {
-                
+
                 Console.Write($"휴식하기\r\n\n500 G 를 내면 체력을 회복할 수 있습니다. (보유 골드 : {player.GOLD} G)\r\n\r\n1. 휴식하기\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
                 playerInput = Console.ReadLine();
                 if (playerInput == null)
@@ -600,6 +628,7 @@ namespace SpartaTextRpg
                         if (player.GOLD >= 500)
                         {
                             player.GOLD -= 500;
+                            player.HEALTH = 100;
                             Console.Clear();
                             Console.WriteLine("휴식을 완료했습니다.\n");
                             continue;
@@ -623,6 +652,68 @@ namespace SpartaTextRpg
                     }
                 }
 
+            }
+        }
+
+
+
+        public void SelectDungeon()
+        {
+            while (true)
+            {
+                Console.Write($"던전 입장\r\n이곳에서 던전으로 들어가기전 활동을 할 수 있습니다.\r\n\r\n1. 쉬운 던전 | 방어력 5 이상 권장\r\n2. 일반 던전 | 방어력 15 이상 권장\r\n3. 어려운 던전 | 방어력 25 이상 권장\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
+                playerInput = Console.ReadLine();
+                if (playerInput == null) continue;
+                try
+                {
+                    int parseInput = int.Parse(playerInput);
+                }
+                catch (FormatException e)
+                {
+                    Console.Clear();
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    continue;
+                }
+                if (int.Parse(playerInput) == 0)
+                {
+                    Console.Clear();
+                    return;
+                }
+                else if (int.Parse(playerInput) > 0 && int.Parse(playerInput) <= 3)
+                {
+                    Console.Clear();
+                    DungeonDifficulty dungeonDiff = (DungeonDifficulty)int.Parse(playerInput);
+                    switch (dungeonDiff)
+                    {
+
+                        case DungeonDifficulty.쉬운:
+                            Console.Clear();
+                            dungeon.SetDungeon(player, DungeonDifficulty.쉬운);
+                            dungeon.EnterDungeon(player, DungeonDifficulty.쉬운);
+                            break;
+                        case DungeonDifficulty.일반:
+                            Console.Clear();
+                            dungeon.SetDungeon(player, DungeonDifficulty.일반);
+                            dungeon.EnterDungeon(player, DungeonDifficulty.일반);
+                            break;
+                        case DungeonDifficulty.어려운:
+                            Console.Clear();
+                            dungeon.SetDungeon(player, DungeonDifficulty.어려운);
+                            dungeon.EnterDungeon(player, DungeonDifficulty.어려운);
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                            continue;
+                    }
+                    return;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    continue;
+                }
             }
         }
 
@@ -662,11 +753,11 @@ namespace SpartaTextRpg
                         break;
                     case Menu.상태보기:
                         Console.Clear();
-                        WatchState();break;
+                        WatchState(); break;
                     case Menu.던전:
                         Console.Clear();
-                        WatchState();
-                        break;         
+                        SelectDungeon();
+                        break;
                     case Menu.휴식:
                         Console.Clear();
                         TakeRest();
@@ -690,15 +781,11 @@ namespace SpartaTextRpg
             player = new Player();
             db = new ItemDB();
             mk = new Market(db);
+            dungeon = new Dungeon();
 
             SelectJob();
             InputName();
-            while (true)
-            {
-                //playerInput = null;
-                SelectMenu();
 
-            }
 
         }
     }
@@ -719,23 +806,53 @@ namespace SpartaTextRpg
             }
         }
 
+        private int experience = 0;
+        public int EXPERIENCE
+        {
+            get { return experience; }
+            set
+            {
+                experience = value;
+                if (value < 0)
+                {
+                    throw new ArgumentException("Experience cannot be negative.");
+                }
+                if (experience>=level)
+                {
+                    LEVEL += 1;
+                    experience = 0;
+                }
+                
+            }
+        }
+
         private int level = 1;
         public int LEVEL
         {
             get { return level; }
             set
             {
+                int levelUp = value - level;
+                float attackUp = levelUp * 0.5f;
+                float defenseUp = levelUp * 1f;
+                attack += attackUp;
+                defense += defenseUp;
                 level = value;
+                Console.WriteLine($"레벨업! {level}레벨이 되었습니다.\n");
             }
         }
 
 
-        private int health = 100;
-        public int HEALTH
+        private float health = 100;
+        public float HEALTH
         {
             get { return health; }
             set
             {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("당신은 죽었습니다!!!!!");
+                }
                 health = value;
             }
         }
@@ -758,8 +875,8 @@ namespace SpartaTextRpg
             inventory = new Inventory();
         }
 
-        private int attack = 10;
-        public int ATTACK
+        private float attack = 10;
+        public float ATTACK
         {
             get { return attack; }
             set
@@ -768,8 +885,8 @@ namespace SpartaTextRpg
             }
         }
 
-        private int defense = 5;
-        public int DEFENSE
+        private float defense = 5;
+        public float DEFENSE
         {
             get { return defense; }
             set
@@ -794,14 +911,14 @@ namespace SpartaTextRpg
             }
         }
 
-        public int additionalAttack { get; set; } = 0;
-        public int additionalDefense { get; set; } = 0;
+        public float additionalAttack { get; set; } = 0;
+        public float additionalDefense { get; set; } = 0;
 
         public void EquipItem(EquipmentItem item)
         {
-           if(item.TYPE == EquipmentType.무기)
+            if (item.TYPE == EquipmentType.무기)
             {
-                if(EquipedItem[0] != null)
+                if (EquipedItem[0] != null)
                 {
                     UnEquipItem(EquipmentType.무기);
                 }
@@ -834,8 +951,8 @@ namespace SpartaTextRpg
         }
 
         public void UnEquipItem(EquipmentType type)
-        {   
-            if(type == EquipmentType.무기)
+        {
+            if (type == EquipmentType.무기)
             {
                 EquipedItem[0].ISEQUIPED = false;
                 ATTACK -= EquipedItem[0].stat.ATTACK;
@@ -857,7 +974,7 @@ namespace SpartaTextRpg
         }
 
         public EquipmentItem[] EquipedItem = new EquipmentItem[2];
-        
+
 
 
 
@@ -882,9 +999,156 @@ namespace SpartaTextRpg
             mkInven.AddItem(db.CloneItemFromDB("판금 갑옷"));
         }
 
+    }
+
+    class Dungeon
+    {
+        float recommendedDefense;
+        float defenseInterval;
+        int reawardGold;
+        Random rand = new Random();
+
+        public void FailDungeon(Player player, DungeonDifficulty level)
+        {
+            Console.WriteLine("던전 실패\r\n");
+            Console.WriteLine($"아쉽지만, {level}던전을 클리어 하지 못했습니다.\n");
+            Console.WriteLine($"추천 방어력 : {recommendedDefense} | 현재 방어력 : {player.DEFENSE}\n");
+            Console.WriteLine("[탐험결과]");
+            Console.WriteLine($"체력 {player.HEALTH} -> {player.HEALTH / 2}\n");
+            player.HEALTH /= 2;
+            Console.WriteLine("0. 나가기.\n");
+            Console.Write("원하시는 행동을 입력해주세요.\n>>");
+            while (true)
+            {
+                int playerInput;
+                if (int.TryParse(Console.ReadLine(), out playerInput))
+                {
+                    if (playerInput == 0)
+                    {
+                        Console.Clear();
+                        return;
+                    }
+                    else
+                    {
+
+                        Console.WriteLine("잘못된 입력입니다. 다시 입력해주세요\n");
+                        continue;
+                    }
 
 
 
+                }
+                else
+                {
+
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해주세요\n");
+                    continue;
+                }
+
+            }
+
+        }
+
+        public void SuccessDungeon(Player player, DungeonDifficulty level)
+        {
+            Console.WriteLine("던전 클리어\r\n");
+            Console.WriteLine($"축하합니다. {level}던전을 클리어 하였습니다.\n");
+            Console.WriteLine("[탐험결과]");
+            player.EXPERIENCE += 1;
+            float reduceHealth = 20 + rand.Next(15) - defenseInterval;
+            Console.WriteLine($"체력 {player.HEALTH} -> {player.HEALTH - reduceHealth}\n");
+            player.HEALTH -= reduceHealth;
+            Console.WriteLine($"골드 : {player.GOLD} G -> {player.GOLD + reawardGold}\n");
+            player.GOLD += reawardGold;
+            Console.WriteLine("0. 나가기\n");
+            Console.Write("원하시는 행동을 입력해주세요.\n>>");
+
+            while (true)
+            {
+
+                int playerInput;
+                if (int.TryParse(Console.ReadLine(), out playerInput))
+                {
+                    if (playerInput == 0)
+                    {
+                        Console.Clear();
+                        return;
+                    }
+                    else
+                    {
+
+                        Console.WriteLine("잘못된 입력입니다. 다시 입력해주세요\n");
+                        continue;
+                    }
+
+                }
+                else
+                {
+
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해주세요\n");
+                    continue;
+                }
+            }
+        }
+
+
+        public void EnterDungeon(Player player, DungeonDifficulty dungeonLevel)
+        {
+            SetDungeon(player, dungeonLevel);
+            if (defenseInterval < 0)
+            {
+                if (rand.NextDouble() <= 0.4f)
+                {
+                    Console.Clear();
+                    FailDungeon(player, dungeonLevel);
+                    return;
+                }
+                else
+                {
+                    Console.Clear();
+                    SuccessDungeon(player, dungeonLevel); // 던전 성공 
+                    return;
+
+                }
+            }
+            else
+            {
+                Console.Clear();
+                SuccessDungeon(player, dungeonLevel); // 던전 성공 
+                return;
+            }
+
+        }
+
+        public void SetDungeon(Player player, DungeonDifficulty level)
+        {
+            float additionalReward = 0;
+            additionalReward = (player.ATTACK + rand.Next((int)player.ATTACK)) * 0.01f;
+            if (level == DungeonDifficulty.쉬운)
+            {
+                recommendedDefense = 5;
+                reawardGold = 1000;
+                reawardGold += (int)(additionalReward * reawardGold);
+            }
+            else if (level == DungeonDifficulty.일반)
+            {
+                recommendedDefense = 15;
+                reawardGold = 1700;
+                reawardGold += (int)(additionalReward * reawardGold);
+            }
+            else if (level == DungeonDifficulty.어려운)
+            {
+                recommendedDefense = 25;
+                reawardGold = 2500;
+                reawardGold += (int)(additionalReward * reawardGold);
+            }
+
+            defenseInterval = player.DEFENSE - recommendedDefense;
+
+
+
+
+        }
 
     }
 
@@ -958,12 +1222,12 @@ namespace SpartaTextRpg
                 if (!item.value.HASITEM)
                 {
 
-                Console.WriteLine($"- {1 + item.Index} {item.value.ToString()} | {item.value.PRICE} G");
+                    Console.WriteLine($"- {1 + item.Index} {item.value.ToString()} | {item.value.PRICE} G");
 
                 }
                 else
                 {
-                Console.WriteLine($"- {1 + item.Index} {item.value.ToString()} | 구매완료");
+                    Console.WriteLine($"- {1 + item.Index} {item.value.ToString()} | 구매완료");
 
                 }
             }
@@ -1006,7 +1270,7 @@ namespace SpartaTextRpg
 
     class Item
     {
-        private bool hasItem  = false;
+        private bool hasItem = false;
         public bool HASITEM
         {
             get { return hasItem; }
@@ -1066,7 +1330,7 @@ namespace SpartaTextRpg
             item.name = name;
             item.price = price;
             item.description = description;
-            
+
             return item;
         }
     }
@@ -1096,7 +1360,11 @@ namespace SpartaTextRpg
 
         public override bool Equals(object? obj)
         {
-            return this.NAME == ((EquipmentItem)obj).NAME && stat.Equals(((EquipmentItem)obj).stat);
+            if (obj is EquipmentItem otherItem && otherItem.NAME != null)
+            {
+                return this.NAME == otherItem.NAME && stat.Equals(otherItem.stat);
+            }
+            return false;
         }
 
 
@@ -1122,13 +1390,13 @@ namespace SpartaTextRpg
             string equiped = "[E]";
             if (isEquiped == true)
             {
-                return $"{NAME}{equiped} | {stat.ToString(),-3} | {DESCRIPTION,-10}";
+                return $"{equiped}{NAME} | {stat.ToString(),-3} | {DESCRIPTION,-10}";
             }
             else
             {
                 return $"{NAME} | {stat.ToString(),-3} | {DESCRIPTION,-10}";
             }
-            
+
         }
 
         public override EquipmentItem CloneItem()
