@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\wcsugar\\Desktop\\SpartaC#\\SpartaTextRpg\\SpartaTextRpg\\SpartaTextRpg.csproj": {}
+    "C:\\Users\\wcsugar\\Documents\\GitHub\\SpartaTextRPG_Project\\SpartaTextRpg\\SpartaTextRpg.csproj": {}
   },
   "projects": {
-    "C:\\Users\\wcsugar\\Desktop\\SpartaC#\\SpartaTextRpg\\SpartaTextRpg\\SpartaTextRpg.csproj": {
+    "C:\\Users\\wcsugar\\Documents\\GitHub\\SpartaTextRPG_Project\\SpartaTextRpg\\SpartaTextRpg.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\wcsugar\\Desktop\\SpartaC#\\SpartaTextRpg\\SpartaTextRpg\\SpartaTextRpg.csproj",
+        "projectUniqueName": "C:\\Users\\wcsugar\\Documents\\GitHub\\SpartaTextRPG_Project\\SpartaTextRpg\\SpartaTextRpg.csproj",
         "projectName": "SpartaTextRpg",
-        "projectPath": "C:\\Users\\wcsugar\\Desktop\\SpartaC#\\SpartaTextRpg\\SpartaTextRpg\\SpartaTextRpg.csproj",
+        "projectPath": "C:\\Users\\wcsugar\\Documents\\GitHub\\SpartaTextRPG_Project\\SpartaTextRpg\\SpartaTextRpg.csproj",
         "packagesPath": "C:\\Users\\wcsugar\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\wcsugar\\Desktop\\SpartaC#\\SpartaTextRpg\\SpartaTextRpg\\obj\\",
+        "outputPath": "C:\\Users\\wcsugar\\Documents\\GitHub\\SpartaTextRPG_Project\\SpartaTextRpg\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\VisualStudio_Shared\\NuGetPackages"

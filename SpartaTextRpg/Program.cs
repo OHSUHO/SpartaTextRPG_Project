@@ -20,7 +20,15 @@ namespace SpartaTextRpg
     {
         상태보기 = 1,
         인벤토리,
-        상점
+        상점,
+        던전,
+        휴식
+    }
+
+    public enum EquipmentType
+    {
+        무기=1,
+        방어구
     }
 
     public struct ItemStat
@@ -347,14 +355,9 @@ namespace SpartaTextRpg
                         if (player.inventory.GetItem(selectedItem) is EquipmentItem)
                         {
                             EquipmentItem selectedEquipment = (EquipmentItem)player.inventory.GetItem(selectedItem);
-                            if (!selectedEquipment.isEquip)
-                            {
-                                player.EquipItem(selectedEquipment);
-                            }
-                            else
-                            {
-                                player.EquipItem(selectedEquipment);
-                            }
+                            player.EquipItem(selectedEquipment);
+                            
+
                         }
                         else
                         {
@@ -396,7 +399,7 @@ namespace SpartaTextRpg
                 Console.WriteLine();
                 mk.mkInven.ShowItemsInMarket();
                 Console.WriteLine();
-                Console.Write("1. 아이템 구매\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
+                Console.Write("1. 아이템 구매\r\n2. 아이템 판매\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
                 playerInput = Console.ReadLine();
                 if (playerInput == null) continue;
                 try
@@ -419,6 +422,11 @@ namespace SpartaTextRpg
                 {
                     Console.Clear();
                     return;
+                }
+                else if (int.Parse(playerInput) == 2)
+                {
+                    Console.Clear();
+                    SellToMarket();
                 }
                 else
                 {
@@ -499,14 +507,129 @@ namespace SpartaTextRpg
 
             }
 
+        }
+
+        public void SellToMarket()
+        {
+            while (true)
+            {
+                Console.WriteLine($"상점 - 아이템 판매\r\n필요한 아이템을 얻을 수 있는 상점입니다.\r\n\n[보유 골드]\r\n{player.GOLD} G\r\n\n[아이템 목록]");
+                Console.WriteLine();
+                player.inventory.ShowItems();
+                Console.WriteLine();
+                Console.Write("\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
+                playerInput = Console.ReadLine();
+                if (playerInput == null) continue;
+                try
+                {
+                    int parseInput = int.Parse(playerInput);
+                }
+                catch (FormatException e)
+                {
+                    Console.Clear();
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    continue;
+                }
+                if (int.Parse(playerInput) == 0)
+                {
+                    Console.Clear();
+                    return;
+                }
+                else if (int.Parse(playerInput) > 0 && int.Parse(playerInput) <= player.inventory.GetItemCount())
+                {
+                    Console.Clear();
+                    int selectedItem = int.Parse(playerInput) - 1;
+                    EquipmentItem selectedEquipment = (EquipmentItem)player.inventory.GetItem(selectedItem);
+                    Console.WriteLine($"{player.inventory.GetItem(selectedItem).NAME}을 판매하였습니다!.\n");
+                    player.GOLD += (int)(player.inventory.GetItem(selectedItem).PRICE * 0.85);
+                    if (selectedEquipment.TYPE == EquipmentType.무기)
+                    {   
+                        if(player.EquipedItem[0] == selectedEquipment)
+                        {
+                            player.UnEquipItem(EquipmentType.무기);
+                        }
+                    }
+                    else if (selectedEquipment.TYPE == EquipmentType.방어구)
+                    {
+                        player.UnEquipItem(EquipmentType.방어구);
+                    }
+                    mk.mkInven.GetItem(player.inventory.GetItem(selectedItem).NAME).HASITEM = false;
+                    player.inventory.RemoveItem(player.inventory.GetItem(selectedItem));
 
 
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    continue;
+                }
+
+
+
+            }
+        }
+
+        public void TakeRest()
+        {   while (true)
+            {
+                
+                Console.Write($"휴식하기\r\n\n500 G 를 내면 체력을 회복할 수 있습니다. (보유 골드 : {player.GOLD} G)\r\n\r\n1. 휴식하기\r\n0. 나가기\r\n\r\n원하시는 행동을 입력해주세요.\r\n>>");
+                playerInput = Console.ReadLine();
+                if (playerInput == null)
+                {
+                    Console.Clear();
+                    Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    continue;
+                }
+                else
+                {
+                    try
+                    {
+                        int parseInput = int.Parse(playerInput);
+                    }
+                    catch (FormatException e)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                        continue;
+
+                    }
+                    if (int.Parse(playerInput) == 1)
+                    {
+                        if (player.GOLD >= 500)
+                        {
+                            player.GOLD -= 500;
+                            Console.Clear();
+                            Console.WriteLine("휴식을 완료했습니다.\n");
+                            continue;
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Gold 가 부족합니다. .\n");
+                            continue;
+                        }
+                    }
+                    else if (int.Parse(playerInput) == 0)
+                    {
+                        Console.Clear();
+                        return;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
+                    }
+                }
+
+            }
         }
 
         private void SelectMenu()
         {
             Menu menu;
-            Console.Write("스파르타 마을에 오신 여러분 환영합니다.\r\n이곳에서 던전으로 들어가기전 활동을 할 수 있습니다.\r\n\r\n1. 상태 보기\r\n2. 인벤토리\r\n3. 상점\r\n\r\n원하시는 행동을 입력해주세요.>> ");
+            Console.Write("스파르타 마을에 오신 여러분 환영합니다.\r\n이곳에서 던전으로 들어가기전 활동을 할 수 있습니다.\r\n\r\n1. 상태 보기\r\n2. 인벤토리\r\n3. 상점\r\r\n4. 던전입장\r\n5. 휴식하기\r\n\n원하시는 행동을 입력해주세요.>> ");
             playerInput = Console.ReadLine();
             if (playerInput == null)
             {
@@ -539,8 +662,16 @@ namespace SpartaTextRpg
                         break;
                     case Menu.상태보기:
                         Console.Clear();
+                        WatchState();break;
+                    case Menu.던전:
+                        Console.Clear();
                         WatchState();
+                        break;         
+                    case Menu.휴식:
+                        Console.Clear();
+                        TakeRest();
                         break;
+
                     default:
                         Console.Clear();
                         Console.WriteLine("잘못된 입력입니다. 다시 입력해 주세요.\n");
@@ -668,40 +799,67 @@ namespace SpartaTextRpg
 
         public void EquipItem(EquipmentItem item)
         {
-            if (!item.isEquip)
+           if(item.TYPE == EquipmentType.무기)
             {
-                if (item.stat.ATTACK > 0)
+                if(EquipedItem[0] != null)
                 {
-                    ATTACK += item.stat.ATTACK;
-                    additionalAttack += item.stat.ATTACK;
+                    UnEquipItem(EquipmentType.무기);
+                }
+                EquipedItem[0] = item;
+                EquipedItem[0].ISEQUIPED = true;
+                attack += item.stat.ATTACK;
+                additionalAttack += item.stat.ATTACK;
+                Console.WriteLine($"{item.NAME}을(를) 장착했습니다.");
+            }
+            else if (item.TYPE == EquipmentType.방어구)
+            {
+                if (EquipedItem[1] != null)
+                {
+
+                    UnEquipItem(EquipmentType.방어구);
 
                 }
-                if (item.stat.DEFENSE > 0)
-                {
-                    DEFENSE += item.stat.DEFENSE;
-                    additionalDefense += item.stat.DEFENSE;
-                }
-                item.Equip();
-
+                EquipedItem[1] = item;
+                EquipedItem[1].ISEQUIPED = true;
+                defense += item.stat.DEFENSE;
+                additionalDefense += item.stat.DEFENSE;
+                Console.WriteLine($"{item.NAME}을(를) 장착했습니다.");
             }
             else
             {
-                if (item.stat.ATTACK > 0)
-                {
-                    ATTACK -= item.stat.ATTACK;
-                    additionalAttack -= item.stat.ATTACK;
-
-                }
-                if (item.stat.DEFENSE > 0)
-                {
-                    DEFENSE -= item.stat.DEFENSE;
-                    additionalDefense -= item.stat.DEFENSE;
-                }
-                item.UnEquip();
+                Console.WriteLine("장착할 수 없는 아이템입니다.\n");
             }
 
 
         }
+
+        public void UnEquipItem(EquipmentType type)
+        {   
+            if(type == EquipmentType.무기)
+            {
+                EquipedItem[0].ISEQUIPED = false;
+                ATTACK -= EquipedItem[0].stat.ATTACK;
+                additionalAttack -= EquipedItem[0].stat.ATTACK;
+                EquipedItem[0] = null;
+            }
+            else if (type == EquipmentType.방어구)
+            {
+                EquipedItem[1].ISEQUIPED = false;
+                DEFENSE -= EquipedItem[1].stat.DEFENSE;
+                additionalDefense -= EquipedItem[1].stat.DEFENSE;
+                EquipedItem[0] = null;
+            }
+            else
+            {
+                Console.WriteLine("장착할 수 없는 아이템입니다.\n");
+            }
+
+        }
+
+        public EquipmentItem[] EquipedItem = new EquipmentItem[2];
+        
+
+
 
 
 
@@ -737,13 +895,13 @@ namespace SpartaTextRpg
         public ItemDB()
         {
             DBitems = new List<Item>() {
-            new EquipmentItem() { NAME = "낡은 검", PRICE = 100, DESCRIPTION = "낡은 검입니다. 날이 무디고, 곳곳에 녹이 슬어있습니다.", stat = new ItemStat() { ATTACK = 3 } },
-            new EquipmentItem() { NAME = "평범한 철 검", PRICE = 500, DESCRIPTION = "평범한 검입니다. 날이 잘 서있고, 균형이 잘 잡혀있어 휘두르기 편합니다.", stat = new ItemStat() { ATTACK = 10 } },
-            new EquipmentItem() { NAME = "스파르타 검", PRICE = 1000, DESCRIPTION = "스파르타의 정예군이 사용하던 양날 검입니다. 날이 날카롭게 서있습니다.", stat = new ItemStat() { ATTACK = 20 } },
-            new EquipmentItem() { NAME = "천 갑옷", PRICE = 100, DESCRIPTION = "모직으로 이루어진 천 갑옷입니다. 갑옷으로써 사용하기엔 빈약합니다.", stat = new ItemStat() { DEFENSE = 3 } },
-            new EquipmentItem() { NAME = "천 갑옷", PRICE = 100, DESCRIPTION = "더미데이터 입니다. 삭제될 예정입니다.", stat = new ItemStat() { DEFENSE = 3 } }, // 중복데이터제거로 사라질 데이터
-            new EquipmentItem() { NAME = "가죽 갑옷", PRICE = 500, DESCRIPTION = "어떤 동물의 가죽으로 만들어진 갑옷입니다. ", stat = new ItemStat() { DEFENSE = 10 } },
-            new EquipmentItem() { NAME = "판금 갑옷", PRICE = 1000, DESCRIPTION = "이름없는 장인의 노력으로 완전한 방어력을 갖춘 판금갑옷 입니다. ", stat = new ItemStat() { DEFENSE = 20 } }
+            new EquipmentItem() { NAME = "낡은 검", PRICE = 100, DESCRIPTION = "낡은 검입니다. 날이 무디고, 곳곳에 녹이 슬어있습니다.", stat = new ItemStat() { ATTACK = 3 } , TYPE = EquipmentType.무기 },
+            new EquipmentItem() { NAME = "평범한 철 검", PRICE = 500, DESCRIPTION = "평범한 검입니다. 날이 잘 서있고, 균형이 잘 잡혀있어 휘두르기 편합니다.", stat = new ItemStat() { ATTACK = 10 },TYPE = EquipmentType.무기 },
+            new EquipmentItem() { NAME = "스파르타 검", PRICE = 1000, DESCRIPTION = "스파르타의 정예군이 사용하던 양날 검입니다. 날이 날카롭게 서있습니다.", stat = new ItemStat() { ATTACK = 20 } , TYPE = EquipmentType.무기},
+            new EquipmentItem() { NAME = "천 갑옷", PRICE = 100, DESCRIPTION = "모직으로 이루어진 천 갑옷입니다. 갑옷으로써 사용하기엔 빈약합니다.", stat = new ItemStat() { DEFENSE = 3 },TYPE = EquipmentType.방어구 },
+            new EquipmentItem() { NAME = "천 갑옷", PRICE = 100, DESCRIPTION = "더미데이터 입니다. 삭제될 예정입니다.", stat = new ItemStat() { DEFENSE = 3 },TYPE=EquipmentType.방어구 }, // 중복데이터제거로 사라질 데이터
+            new EquipmentItem() { NAME = "가죽 갑옷", PRICE = 500, DESCRIPTION = "어떤 동물의 가죽으로 만들어진 갑옷입니다. ", stat = new ItemStat() { DEFENSE = 10 },TYPE = EquipmentType.방어구 },
+            new EquipmentItem() { NAME = "판금 갑옷", PRICE = 1000, DESCRIPTION = "이름없는 장인의 노력으로 완전한 방어력을 갖춘 판금갑옷 입니다. ", stat = new ItemStat() { DEFENSE = 20 },TYPE = EquipmentType.방어구 }
             };
             DBitems = DBitems.Distinct().ToList(); // 중복데이터 제거 - 아이템 이름과 stat이 같을 경우 
         }
@@ -824,6 +982,18 @@ namespace SpartaTextRpg
 
         }
 
+        public Item GetItem(string name)
+        {
+            foreach (var item in items)
+            {
+                if (item.NAME.Equals(name))
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+
         //public void CloneInventoryList(List<Item> items)
         //{
         //    foreach(var item in items)
@@ -896,14 +1066,33 @@ namespace SpartaTextRpg
             item.name = name;
             item.price = price;
             item.description = description;
+            
             return item;
         }
     }
 
-    class EquipmentItem : Item, IEquipable
+    class EquipmentItem : Item
     {
         public ItemStat stat;
-        public bool isEquip = false;
+        private bool isEquiped = false;
+        public bool ISEQUIPED
+        {
+            get { return isEquiped; }
+            set
+            {
+                isEquiped = value;
+            }
+        }
+
+        private EquipmentType type;
+        public EquipmentType TYPE
+        {
+            get { return type; }
+            set
+            {
+                type = value;
+            }
+        }
 
         public override bool Equals(object? obj)
         {
@@ -928,24 +1117,18 @@ namespace SpartaTextRpg
         }
 
 
-        public void Equip()
-        {
-            //Console.WriteLine($"{NAME}을(를) 장착했습니다.");
-            if (isEquip) return;
-            isEquip = true;
-            NAME = "[E]" + NAME;
-        }
-        public void UnEquip()
-        {
-            //Console.WriteLine($"{NAME}을(를) 해제했습니다.");
-            if (!isEquip) return;
-            isEquip = false;
-            NAME = NAME.Substring(3);
-        }
-
         public override string ToString()
         {
-            return $"{NAME,-8}| {stat.ToString(),-3} | {DESCRIPTION,-10}";
+            string equiped = "[E]";
+            if (isEquiped == true)
+            {
+                return $"{NAME}{equiped} | {stat.ToString(),-3} | {DESCRIPTION,-10}";
+            }
+            else
+            {
+                return $"{NAME} | {stat.ToString(),-3} | {DESCRIPTION,-10}";
+            }
+            
         }
 
         public override EquipmentItem CloneItem()
@@ -955,6 +1138,7 @@ namespace SpartaTextRpg
             item.stat = new ItemStat() { ATTACK = this.stat.ATTACK, DEFENSE = this.stat.DEFENSE };
             item.DESCRIPTION = DESCRIPTION;
             item.PRICE = PRICE;
+            item.TYPE = TYPE;
 
             return item;
         }
@@ -962,11 +1146,6 @@ namespace SpartaTextRpg
     }
 
 
-    interface IEquipable
-    {
-        void Equip();
-        void UnEquip();
-    }
 
 
 
